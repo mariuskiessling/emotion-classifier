@@ -66,6 +66,10 @@ public class Classifier {
     public static ArrayList<Integer> createFeatureHitList(double[] normalizedRow, HashMap<String, ArrayList<double[]>> table, int column) {
         ArrayList<Integer> hitList = new ArrayList<>();
 
+        if(normalizedRow[0] == 3.0 && normalizedRow[1] == 3.0 && normalizedRow[2] == 3.0) {
+            System.out.println("3!");
+        }
+
         for(String category: table.keySet()) {
             for(double[] row: table.get(category)) {
                 if(normalizedRow[column] == row[column]) {
@@ -87,5 +91,43 @@ public class Classifier {
         }
 
         return false;
+    }
+
+    public static ArrayList<Integer> getDataIndicesBasedOnFeatureHitList(ArrayList<Integer> hitList, HashMap<String, ArrayList<double[]>> table, int column) {
+        int i = 0;
+
+        for(String category: table.keySet()) {
+            for(double[] row: table.get(category)) {
+
+            }
+        }
+        return null;
+    }
+
+    public static double calculateEvidence(ArrayList<double[]> rawData, ArrayList<double[]> normalizedData, ArrayList<ArrayList> hitLists, HashMap<String, ArrayList<double[]>> table, HashMap<String, ArrayList<Integer>> categories, int column, double[] row) {
+       int i = 0;
+       System.out.println("\nWorking on row: " + Arrays.toString(row) + " in column " + column + " with hit list " + hitLists.get(column));
+
+       for(String category: table.keySet()) {
+           ArrayList<double[]> categoryRows = table.get(category);
+           for(double[] categoryRow: categoryRows) {
+               ArrayList<Integer> columnHitList = hitLists.get(column);
+               if(columnHitList.get(i) == 1) {
+                   System.out.println("Zeile " + i + " in category " + category + " is relevant");
+
+                   // Search for rows in pre-classified category rows in the normalized data that have the same normalized column like the current category row
+                   for(Integer rowId: categories.get(category)) {
+                       if(categoryRow[column] == normalizedData.get(rowId)[column]) {
+                           System.out.println("Found a match!" + categoryRow[column] +  ";" + normalizedData.get(rowId)[column]);
+                       }
+                   }
+               } else {
+                   System.out.println("Zeile " + i + " in category " + category + " is not relevant");
+               }
+               i++;
+           }
+       }
+
+       return 0;
     }
 }
