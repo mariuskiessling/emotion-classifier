@@ -9,14 +9,15 @@ public class Main {
     public static void main(String[] args) {
         String filename = "/Users/marius/Downloads/E2/E_2_B.csv";
 
+        // Import the required data columns of the input file
         ArrayList<double[]> rawData = Importer.loadDoubleCSV(filename, ";", 2, 4, true);
+        System.out.println("Successfully loaded " + rawData.size() + " raw data vectors.\n");
 
-        System.out.println("Loaded raw data:");
-        Importer.printTable(rawData);
-
+        // Import the category labels from the input file
         HashMap<String, ArrayList<Integer>> categories = Importer.loadCategories(filename, ";", 5);
-        System.out.println("Loaded these categories in [columns]:");
+        System.out.println("Successfully loaded the following category labels in [rows]:");
         Importer.printCategories(categories);
+        System.out.println("\n");
 
         // Deep copy the raw data into a normalized data structure in order to preserve the original data
         ArrayList<double[]> normalizedData = new ArrayList<>();
@@ -30,16 +31,21 @@ public class Main {
         for(int i = 0; i < normalizedData.get(0).length; i++) {
             Normalizer n = new Normalizer(0, 0);
             n.setBoundaries(normalizedData, i);
-            System.out.println("Created normalizer for feature " + i + ":: Min: " + n.minMedium + " Max: " + n.maxMedium);
 
             n.normalizeColumn(normalizedData, i);
             normalizers.add(n);
+
+            System.out.println("Created a normalizer for feature "+ i + ": [" + n.minSmall + " --- " + n.minMedium + "][" + n.minMedium + " --- " + n.maxMedium + "][" + n.maxMedium + " --- " + n.maxLarge + "]");
         }
+        System.out.println("\n");
 
+        // Create classification table
         HashMap<String, ArrayList<double[]>> table = Classifier.createTable(normalizedData, categories);
+        System.out.println("Successfully created the classification table with the following categories:");
         Classifier.printTable(table);
+        System.out.println("\n");
 
-
+        // We can now process each input vector and
         ArrayList<ArrayList> hitLists = new ArrayList<>();
         for(double[] row: normalizedData) {
             // Create a hit list of all features inside the current data row and store it in a hit list collection
@@ -49,11 +55,13 @@ public class Main {
             }
             hitLists.add(hitListCollection);
 
+            // Gather evidences for all categories an input vector can be classified as
             ArrayList<Double> evidences = new ArrayList<>();
             for(int i = 0; i < normalizedData.get(0).length; i++) {
                 evidences.add(Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(0), table, categories, i, row, normalizers));
             }
 
+            // Create a measure for each input vector feature and accumulate them using the Dempster-Schafer rule
             dempster.DempsterHandler dH = new DempsterHandler(hitListCollection.get(0).size());
             for(int i = 0; i < normalizedData.get(0).length; i++) {
                 Measure m = dH.addMeasure();
@@ -61,6 +69,8 @@ public class Main {
                 dH.accumulateAllMeasures();
             }
 
+            // Calculate all the classification categorie's plausabilities and determine the highest one.
+            // The highest one will be chosen as this input vectors correct classification.
             double highestPlausability = 0;
             int highestPlausabilityIndex = 0;
             for(int i = 0; i < hitListCollection.get(0).size(); i++) {
@@ -72,28 +82,8 @@ public class Main {
                     highestPlausabilityIndex = i;
                 }
             }
-            System.out.println("=> Detected emotion: " + Classifier.getTableRowName(table, highestPlausabilityIndex));
-
-            System.out.println("\n\n");
+            System.out.println("=> Detected category for input vector " + normalizedData.indexOf(row) + ": " + Classifier.getTableRowName(table, highestPlausabilityIndex));
+            System.out.println("\n");
         }
-
-//        double[] row = normalizedData.get(0);
-//        for(int i = 0; i < normalizedData.get(0).length; i++) {
-//            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(0), table, categories, i, row, normalizers);
-//        }
-//        System.out.println("\n\n");
-//
-//        row = normalizedData.get(23);
-//        for(int i = 0; i < normalizedData.get(0).length; i++) {
-//            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(23), table, categories, i, row, normalizers);
-//        }
-
-//    Normalizer normalizer = new Normalizer(250, 300);
-//    normalizer.minSmall = 150;
-//    normalizer.maxLarge = 400;
-//        System.out.println(normalizer.normalize(300));
-//        System.out.println(normalizer.getNormalizationEvidence(275));
-
-
     }
 }
