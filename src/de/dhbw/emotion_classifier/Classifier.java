@@ -81,10 +81,6 @@ public class Classifier {
     public static ArrayList<Integer> createFeatureHitList(double[] normalizedRow, HashMap<String, ArrayList<double[]>> table, int column) {
         ArrayList<Integer> hitList = new ArrayList<>();
 
-        if(normalizedRow[0] == 3.0 && normalizedRow[1] == 3.0 && normalizedRow[2] == 3.0) {
-            System.out.println("3!");
-        }
-
         for(String category: table.keySet()) {
             for(double[] row: table.get(category)) {
                 if(normalizedRow[column] == row[column]) {
