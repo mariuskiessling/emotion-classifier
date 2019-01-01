@@ -63,6 +63,21 @@ public class Classifier {
         }
     }
 
+    public static String getTableRowName(HashMap<String, ArrayList<double[]>> table, int rowId) {
+        int i = 0;
+
+        for(String category: table.keySet()) {
+            for(double[] row: table.get(category)) {
+                if(i == rowId) {
+                    return category + "_" + table.get(category).indexOf(row);
+                }
+                i++;
+            }
+        }
+
+        return "This classification does not exist";
+    }
+
     public static ArrayList<Integer> createFeatureHitList(double[] normalizedRow, HashMap<String, ArrayList<double[]>> table, int column) {
         ArrayList<Integer> hitList = new ArrayList<>();
 
@@ -104,30 +119,37 @@ public class Classifier {
         return null;
     }
 
-    public static double calculateEvidence(ArrayList<double[]> rawData, ArrayList<double[]> normalizedData, ArrayList<ArrayList> hitLists, HashMap<String, ArrayList<double[]>> table, HashMap<String, ArrayList<Integer>> categories, int column, double[] row) {
+    public static double calculateEvidence(ArrayList<double[]> rawData, ArrayList<double[]> normalizedData, ArrayList<ArrayList> hitLists, HashMap<String, ArrayList<double[]>> table, HashMap<String, ArrayList<Integer>> categories, int column, double[] row, ArrayList<Normalizer> normalizers) {
        int i = 0;
-       System.out.println("\nWorking on row: " + Arrays.toString(row) + " in column " + column + " with hit list " + hitLists.get(column));
+//       System.out.println("\nWorking on row: " + Arrays.toString(row) + " in column " + column + " with hit list " + hitLists.get(column));
+
+       double evidences = 0;
+       int evidencesCount = 0;
 
        for(String category: table.keySet()) {
            ArrayList<double[]> categoryRows = table.get(category);
            for(double[] categoryRow: categoryRows) {
                ArrayList<Integer> columnHitList = hitLists.get(column);
                if(columnHitList.get(i) == 1) {
-                   System.out.println("Zeile " + i + " in category " + category + " is relevant");
+//                   System.out.println("Zeile " + i + " in category " + category + " is relevant");
 
                    // Search for rows in pre-classified category rows in the normalized data that have the same normalized column like the current category row
                    for(Integer rowId: categories.get(category)) {
                        if(categoryRow[column] == normalizedData.get(rowId)[column]) {
-                           System.out.println("Found a match!" + categoryRow[column] +  ";" + normalizedData.get(rowId)[column]);
+//                           System.out.println("Found a match!" + categoryRow[column] +  ";" + normalizedData.get(rowId)[column]);
+
+                           double evidence = normalizers.get(column).getNormalizationEvidence(normalizedData.get(rowId)[column]);
+                           evidences += evidence;
+                           evidencesCount++;
                        }
                    }
                } else {
-                   System.out.println("Zeile " + i + " in category " + category + " is not relevant");
+//                   System.out.println("Zeile " + i + " in category " + category + " is not relevant");
                }
                i++;
            }
        }
 
-       return 0;
+       return evidences / evidencesCount;
     }
 }

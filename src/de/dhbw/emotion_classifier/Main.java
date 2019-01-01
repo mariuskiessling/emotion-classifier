@@ -1,8 +1,8 @@
 package de.dhbw.emotion_classifier;
 
-import java.lang.reflect.Array;
+import dempster.*;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main {
@@ -39,6 +39,7 @@ public class Main {
         HashMap<String, ArrayList<double[]>> table = Classifier.createTable(normalizedData, categories);
         Classifier.printTable(table);
 
+
         ArrayList<ArrayList> hitLists = new ArrayList<>();
         for(double[] row: normalizedData) {
             // Create a hit list of all features inside the current data row and store it in a hit list collection
@@ -47,17 +48,44 @@ public class Main {
                 hitListCollection.add(Classifier.createFeatureHitList(row, table, i));
             }
             hitLists.add(hitListCollection);
+
+            ArrayList<Double> evidences = new ArrayList<>();
+            for(int i = 0; i < normalizedData.get(0).length; i++) {
+                evidences.add(Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(0), table, categories, i, row, normalizers));
+            }
+
+            dempster.DempsterHandler dH = new DempsterHandler(hitListCollection.get(0).size());
+            for(int i = 0; i < normalizedData.get(0).length; i++) {
+                Measure m = dH.addMeasure();
+                m.addEntry(hitListCollection.get(i), evidences.get(i));
+                dH.accumulateAllMeasures();
+            }
+
+            double highestPlausability = 0;
+            int highestPlausabilityIndex = 0;
+            for(int i = 0; i < hitListCollection.get(0).size(); i++) {
+                double plausability = dH.getFirstMeasure().calculatePlausability(i);
+                System.out.println("Plausibility of " + Classifier.getTableRowName(table, i) + ": " + plausability);
+
+                if(highestPlausability < plausability) {
+                    highestPlausability = plausability;
+                    highestPlausabilityIndex = i;
+                }
+            }
+            System.out.println("=> Detected emotion: " + Classifier.getTableRowName(table, highestPlausabilityIndex));
+
+            System.out.println("\n\n");
         }
 
-        double[] row = normalizedData.get(0);
-        for(int i = 0; i < normalizedData.get(0).length; i++) {
-            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(0), table, categories, i, row);
-        }
-        System.out.println("\n\n");
-
+//        double[] row = normalizedData.get(0);
+//        for(int i = 0; i < normalizedData.get(0).length; i++) {
+//            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(0), table, categories, i, row, normalizers);
+//        }
+//        System.out.println("\n\n");
+//
 //        row = normalizedData.get(23);
 //        for(int i = 0; i < normalizedData.get(0).length; i++) {
-//            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(23), table, categories, i, row);
+//            Classifier.calculateEvidence(rawData, normalizedData, hitLists.get(23), table, categories, i, row, normalizers);
 //        }
 
 //    Normalizer normalizer = new Normalizer(250, 300);
