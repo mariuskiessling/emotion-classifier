@@ -14,6 +14,9 @@ public class Normalizer {
         this.maxMedium = maxMedium;
     }
 
+    /**
+     * I can't remeber why the hell I introduced this method. @todo Figure that out.
+     */
     public void setBoundariesBasedOnClassifications(ArrayList<double[]> data, ArrayList<Integer> classifiedRowIds, int column) {
         double min = Double.MAX_VALUE, max = Double.MIN_VALUE, sum = 0, average = 0;
 
@@ -59,6 +62,12 @@ public class Normalizer {
         this.maxMedium = average + (max - average) * 1/3;
     }
 
+    /**
+     * Normalize the provided raw data point value into one of three categories. The normalizer's boundaries have to be
+     * set before using this method!
+     * @param value The raw data point value that should be normalized
+     * @return The normalized category value of the provided data point
+     */
     public int normalize(double value) {
         if (value < minMedium) {
             return 1;
@@ -105,6 +114,11 @@ public class Normalizer {
         return capNormalizationEvidence(y);
     }
 
+    /**
+     * Cap the normalization evidence at 1 and 0.5 as smaller/ bigger values don't matter in this project.
+     * @param evidence The evidence value that should be capped
+     * @return The capped evidence
+     */
     private double capNormalizationEvidence(double evidence) {
         if(evidence < 0.5) {
             return 0.5;
@@ -115,6 +129,11 @@ public class Normalizer {
         }
     }
 
+    /**
+     * Get the categorie's width of the provided raw input vector point.
+     * @param value The raw input vector point
+     * @return The width of the category in which the the value falls
+     */
     public double getNormalizationWidth(double value) {
         double normalized = this.normalize(value);
         if(normalized == 1) {
@@ -127,6 +146,12 @@ public class Normalizer {
         return -1;
     }
 
+    /**
+     * Get the offset from the categorie's center of the provided raw data point. If e.g. minSmall is 100 and minMedium
+     * is 200 and the provided raw value is 160, the offset is 10.
+     * @param value The raw input vector's point value whose center offset should be determined
+     * @return The offset from the categorie's center of the provided value
+     */
     public double getNormalizationOffset(double value) {
         // Determine the normalized value
         double normalized = this.normalize(value);
@@ -143,6 +168,12 @@ public class Normalizer {
         return offset;
     }
 
+    /**
+     * Get the value that functions as the normalization categorie's center. If e.g. the minSmall and minMedium values
+     * are set to 100 and 200, then the normalization center is 150.
+     * @param value The raw input vector data point whose normalization center should be determined
+     * @return The numerical value of the normalization center of the provided raw data point
+     */
     private double getNormalizationCenter(double value) {
         // Determine the normalized value
         double normalized = this.normalize(value);
@@ -161,8 +192,8 @@ public class Normalizer {
     }
 
     /**
-     * Prints each row and column of the provided normalized table.
-     * @param table The table to be printed.
+     * Print each row and column of the provided normalized data table.
+     * @param table The table that will be printed
      */
     public void printTable(ArrayList<double[]> table) {
         table.forEach(x -> System.out.println(Arrays.toString(x)));
