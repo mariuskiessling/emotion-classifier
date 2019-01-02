@@ -17,7 +17,7 @@ public class Importer {
      * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded
      * @param columnsEnd The column ID that marks the last column that will be loaded
      * @param skipHeader If set, the first line will not be interpreted as data but as a header line
-     * @return
+     * @return The list of data rows that normally functions as data input vectors
      */
     public static ArrayList<double[]> loadDoubleCSV(String filename, String separator, int columnsBegin, int columnsEnd, boolean skipHeader) {
         try(BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -59,7 +59,7 @@ public class Importer {
      * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded
      * @param columnsEnd The column ID that marks the last column that will be loaded
      * @param skipHeader If set, the first line will not be interpreted as data but as a header line
-     * @return
+     * @return The list of data rows that normally functions as category labels
      */
     public static ArrayList<String[]> loadStringCSV(String filename, String separator, int columnsBegin, int columnsEnd, boolean skipHeader) {
         try(BufferedReader br = new BufferedReader(new FileReader(filename))) {
