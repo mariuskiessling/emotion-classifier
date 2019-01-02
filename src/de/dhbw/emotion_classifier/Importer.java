@@ -11,15 +11,15 @@ import java.util.*;
 public class Importer {
 
     /**
-     * Loads any CSV file containing numerical (double) values in the specified columns range.
-     * @param filename The filename (and path) of the file that will be loaded.
-     * @param seperator The separator splits each column of the CSV file.
-     * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded.
-     * @param columnsEnd The column ID that marks the last column that will be loaded.
-     * @param skipHeader If set, the first line will not be interpreted as data but as a header line.
+     * Load any CSV file containing numerical (double) values in the specified columns range
+     * @param filename The filename (and path) of the file that will be loaded
+     * @param separator The separator splits each column of the CSV file
+     * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded
+     * @param columnsEnd The column ID that marks the last column that will be loaded
+     * @param skipHeader If set, the first line will not be interpreted as data but as a header line
      * @return
      */
-    public static ArrayList<double[]> loadDoubleCSV(String filename, String seperator, int columnsBegin, int columnsEnd, boolean skipHeader) {
+    public static ArrayList<double[]> loadDoubleCSV(String filename, String separator, int columnsBegin, int columnsEnd, boolean skipHeader) {
         try(BufferedReader br = new BufferedReader(new FileReader(filename))) {
             // Read each line and seperate it by the global seperator
             String line = "";
@@ -27,7 +27,7 @@ public class Importer {
             ArrayList<double[]> rows = new ArrayList<>();
 
             while((line = br.readLine()) != null) {
-                String row[] = line.split(seperator);
+                String row[] = line.split(separator);
 
                 if(skipHeader && !headerFound) {
                     headerFound = true;
@@ -53,15 +53,15 @@ public class Importer {
     }
 
     /**
-     * Loads any CSV file containing numerical (double) values in the specified columns range.
-     * @param filename The filename (and path) of the file that will be loaded.
-     * @param seperator The separator splits each column of the CSV file.
-     * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded.
-     * @param columnsEnd The column ID that marks the last column that will be loaded.
-     * @param skipHeader If set, the first line will not be interpreted as data but as a header line.
+     * Load any CSV file containing alpha-numerical (String) values in the specified columns range.
+     * @param filename The filename (and path) of the file that will be loaded
+     * @param separator The separator splits each column of the CSV file
+     * @param columnsBegin The column ID (beginning at 1) that marks the first column that will be loaded
+     * @param columnsEnd The column ID that marks the last column that will be loaded
+     * @param skipHeader If set, the first line will not be interpreted as data but as a header line
      * @return
      */
-    public static ArrayList<String[]> loadStringCSV(String filename, String seperator, int columnsBegin, int columnsEnd, boolean skipHeader) {
+    public static ArrayList<String[]> loadStringCSV(String filename, String separator, int columnsBegin, int columnsEnd, boolean skipHeader) {
         try(BufferedReader br = new BufferedReader(new FileReader(filename))) {
             // Read each line and seperate it by the global seperator
             String line = "";
@@ -69,7 +69,7 @@ public class Importer {
             ArrayList<String[]> rows = new ArrayList<>();
 
             while((line = br.readLine()) != null) {
-                String row[] = line.split(seperator);
+                String row[] = line.split(separator);
 
                 String[] parsedRow = new String[columnsEnd - columnsBegin + 1];
                 int j = 0;
@@ -101,6 +101,15 @@ public class Importer {
         }
     }
 
+    /**
+     * Load the category labels from an existing data file. The label row number has to correspond with the row  number
+     * of the data that it labels. Thus if labeled data is located in e.g. row 20, the label for that data also has to
+     * be located in row 20.
+     * @param filename The filename (and path) of the file that will be loaded
+     * @param separator The separator splits each column of the CSV file
+     * @param columnId The column ID (beginning at 1) that contains the category labels
+     * @return The categories structure that holds all the information about all category labels and their data row IDs
+     */
     public static HashMap<String, ArrayList<Integer>> loadCategories(String filename, String separator, int columnId) {
         // We will store the categories in a HashMap containing the category name as the key which each hold an List of
         // ints that represent the row number (beginning at 0) of the category in question. E.g. category "sadness"
@@ -119,6 +128,15 @@ public class Importer {
         return categories;
     }
 
+    /**
+     * If category label is not already included inside the categories HashMap, a new key is created for that category
+     * and the row ID added to the list of that category. If a category already exists, only the row ID is added to the
+     * existing category.
+     * @param categories The structure holding all category labels and their corresponding data row IDs
+     * @param category The label of the category that should be added to the categories structure
+     * @param rowId The row ID of the row that holds the provided category label
+     * @return The modified categories structure with the category label and data row added.
+     */
     private static HashMap<String, ArrayList<Integer>> insertCategory(HashMap<String, ArrayList<Integer>> categories, String category, int rowId) {
         if(!categories.containsKey(category)) {
             categories.put(category, new ArrayList<Integer>());
@@ -129,13 +147,17 @@ public class Importer {
     }
 
     /**
-     * Prints each row and column of the provided table.
+     * Print each row and column of the provided table.
      * @param table The table to be printed.
      */
     public static void printTable(ArrayList<double[]> table) {
         table.forEach(x -> System.out.println(Arrays.toString(x)));
     }
 
+    /**
+     * Print the categories structure containing all category labels and their data row IDs
+     * @param categories The categories structure that will be printed
+     */
     public static void printCategories(HashMap<String, ArrayList<Integer>> categories) {
         for(String category: categories.keySet()){
             ArrayList<Integer> value = categories.get(category);
