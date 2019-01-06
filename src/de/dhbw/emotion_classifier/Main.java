@@ -2,12 +2,34 @@ package de.dhbw.emotion_classifier;
 
 import dempster.*;
 
+import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
-    public static void main(String[] args) {
-        String filename = "/Users/marius/Downloads/E2/E_2_B.csv";
+    public static void main(String[] args) throws Exception {
+        String filename = "a.csv";
+
+        if(args.length < 1) {
+            // Try to load default file
+            try {
+                FileReader fr = new FileReader(filename);
+            } catch (FileNotFoundException e) {
+                System.out.println("Could not load default file 'a.csv'. Please provide a filename (and path) as the first argument. The path can be provided as an absolute or relative value from the programs execution directory.");
+                System.exit(1);
+            }
+        } else {
+            // Try to load a custom input file
+            filename = args[0];
+            try {
+                FileReader fr = new FileReader(filename);
+            } catch (FileNotFoundException e) {
+                System.out.println("Could not load custom file " + filename + ". Please provide a filename (and path) as the first argument. The path can be provided as an absolute or relative value from the programs execution directory.");
+                System.exit(1);
+            }
+        }
 
         // Import the required data columns of the input file
         ArrayList<double[]> rawData = Importer.loadDoubleCSV(filename, ";", 2, 4, true);
