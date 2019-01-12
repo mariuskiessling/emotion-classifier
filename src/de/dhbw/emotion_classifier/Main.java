@@ -2,7 +2,6 @@ package de.dhbw.emotion_classifier;
 
 import dempster.*;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
