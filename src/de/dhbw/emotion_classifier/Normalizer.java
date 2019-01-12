@@ -41,6 +41,11 @@ public class Normalizer {
         this.maxMedium = average + (max - average) * 1/3;
     }
 
+    /**
+     * Set the normalizer's boundaries based on one column of the raw data.
+     * @param data A list of all raw data points
+     * @param column The column that will be evaluated while setting the normalizer's boundaries
+     */
     public void setBoundaries(ArrayList<double[]> data, int column) {
         double min = Double.MAX_VALUE, max = Double.MIN_VALUE, sum = 0, average = 0;
 
@@ -81,11 +86,23 @@ public class Normalizer {
         return 0;
     }
 
+    /**
+     * Normalize each row inside the provided raw data points. The normalization is limited to the provided column ID
+     * (starting at 0).
+     * @param table The raw data point table
+     * @param columnId The column inside the data point table whose data points will be normalized
+     * @return The provided data point table in normalized form
+     */
     public ArrayList<double[]> normalizeColumn(ArrayList<double[]> table, int columnId) {
         table.forEach(row -> row[columnId] = normalize(row[columnId]));
         return table;
     }
 
+    /**
+     * Get the certainty that can be assigned to the provided value.
+     * @param value A value (part of the raw data point set) whose certainty will be determined
+     * @return The certainty for the provided data point value
+     */
     public double getNormalizationEvidence(double value) {
         double offset = this.getNormalizationOffset(value);
         double center = this.getNormalizationCenter(value);
@@ -98,6 +115,15 @@ public class Normalizer {
         }
     }
 
+    /**
+     * Calculate the normalization evidence for a data point whose value is smaller than the center of the normalization
+     * category it is assigned to.
+     * @param value The raw data point value
+     * @param offset The offset of the data point value from the center of the normalization category
+     * @param center The center of the normalization category the value is part of
+     * @param normalizationWidth The width of the normalization category the value is part of
+     * @return The evidence that the provided value is part of the normalization category
+     */
     public double getLeftNormalizationEvidence(double value, double offset, double center, double normalizationWidth) {
         double n = (0.5 / -(normalizationWidth / 2)) * center + 1;
         double y = (0.5 / (normalizationWidth / 2)) * value + n;
@@ -106,6 +132,15 @@ public class Normalizer {
         return capNormalizationEvidence(y);
     }
 
+    /**
+     * Calculate the normalization evidence for a data point whose value is bigger than the center of the normalization
+     * category it is assigned to.
+     * @param value The raw data point value
+     * @param offset The offset of the data point value from the center of the normalization category
+     * @param center The center of the normalization category the value is part of
+     * @param normalizationWidth The width of the normalization category the value is part of
+     * @return The evidence that the provided value is part of the normalization category
+     */
     public double getRightNormalizationEvidence(double value, double offset, double center, double normalizationWidth) {
         double n = (0.5 / (normalizationWidth / 2)) * center + 1;
         double y = -(0.5 / (normalizationWidth / 2)) * value + n;
